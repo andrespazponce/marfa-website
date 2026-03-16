@@ -1,0 +1,77 @@
+.videoSection {
+  padding: var(--sp-xl) 0;
+  background: var(--clr-bg);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.description {
+  margin-top: 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--clr-text-dim);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.75;
+}
+
+.videoWrap {
+  position: relative;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 9;
+}
+
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Play button overlay — hides once video is playing via CSS */
+.playBtn {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  background: rgba(0,0,0,0.25);
+  transition: opacity 0.3s ease;
+}
+
+.videoWrap:has(video:not([paused])) .playBtn,
+.video:not([paused]) ~ .playBtn {
+  opacity: 0;
+}
+
+.playBtn svg {
+  width: 64px;
+  height: 64px;
+  color: rgba(255,255,255,0.8);
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.5));
+  transition: transform 0.2s ease;
+}
+
+.videoWrap:hover .playBtn svg {
+  transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .videoSection {
+    padding: 5rem 0;
+  }
+}
