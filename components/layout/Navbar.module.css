@@ -1,0 +1,210 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: var(--z-nav);
+  transition: background-color 0.4s var(--ease-out), backdrop-filter 0.4s var(--ease-out);
+}
+
+.nav.scrolled {
+  background: rgba(10, 12, 10, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--clr-border);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem 2rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ── Wordmark ─────────────────────────────────────────────────────────────── */
+.wordmark {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  color: var(--clr-white);
+  flex-shrink: 0;
+}
+
+/* ── Desktop Links ────────────────────────────────────────────────────────── */
+.links {
+  display: flex;
+  list-style: none;
+  gap: 2.5rem;
+  margin-left: auto;
+}
+
+.link {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.2s ease;
+  position: relative;
+}
+
+.link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--clr-gold);
+  transition: width 0.3s var(--ease-out);
+}
+
+.link:hover {
+  color: var(--clr-white);
+}
+
+.link:hover::after {
+  width: 100%;
+}
+
+/* ── Desktop CTA ──────────────────────────────────────────────────────────── */
+.ctaDesktop {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clr-bg);
+  background: var(--clr-gold);
+  padding: 0.625rem 1.5rem;
+  border-radius: 2px;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.ctaDesktop:hover {
+  background: #d4b47a;
+  transform: translateY(-1px);
+}
+
+/* ── Hamburger ────────────────────────────────────────────────────────────── */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0.5rem;
+  margin-left: auto;
+  cursor: pointer;
+}
+
+.hLine {
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--clr-white);
+  transition:
+    transform 0.35s var(--ease-out),
+    opacity   0.35s var(--ease-out);
+  transform-origin: center;
+}
+
+.nav.menuOpen .hLine:nth-child(1) {
+  transform: translateY(6px) rotate(45deg);
+}
+
+.nav.menuOpen .hLine:nth-child(2) {
+  opacity: 0;
+  transform: scaleX(0);
+}
+
+.nav.menuOpen .hLine:nth-child(3) {
+  transform: translateY(-6px) rotate(-45deg);
+}
+
+/* ── Mobile Menu ──────────────────────────────────────────────────────────── */
+.mobileMenu {
+  position: fixed;
+  inset: 0;
+  background: var(--clr-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  clip-path: circle(0% at calc(100% - 2.75rem) 3rem);
+  transition: clip-path 0.55s var(--ease-out);
+  pointer-events: none;
+}
+
+.nav.menuOpen .mobileMenu {
+  clip-path: circle(150% at calc(100% - 2.75rem) 3rem);
+  pointer-events: all;
+}
+
+.mobileLinks {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.mobileLinkItem {
+  transform: translateY(20px);
+  opacity: 0;
+  transition:
+    transform 0.5s var(--ease-out),
+    opacity   0.5s var(--ease-out);
+}
+
+.nav.menuOpen .mobileLinkItem {
+  transform: none;
+  opacity: 1;
+}
+
+.mobileLink {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 300;
+  color: var(--clr-text);
+  transition: color 0.2s ease;
+  display: block;
+  padding: 0.5rem 1rem;
+}
+
+.mobileLink:hover {
+  color: var(--clr-gold);
+}
+
+.mobileCta {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--clr-bg);
+  background: var(--clr-gold);
+  padding: 1rem 2.5rem;
+  border-radius: 2px;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .links,
+  .ctaDesktop {
+    display: none;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .inner {
+    padding: 1.25rem 1.5rem;
+  }
+}
