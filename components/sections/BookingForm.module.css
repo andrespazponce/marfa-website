@@ -1,0 +1,13 @@
+.wrap {
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-lg);
+  padding: 3rem;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.wrap {
+}
+
+.test { }
