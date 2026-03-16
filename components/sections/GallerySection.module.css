@@ -1,0 +1,21 @@
+.gallery {
+  padding-top: var(--sp-xl);
+  padding-bottom: var(--sp-lg);
+  background: var(--clr-bg-warm);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.header {
+  margin-bottom: 3rem;
+}
+
+@media (max-width: 768px) {
+  .gallery {
+    padding-top: 5rem;
+  }
+}
