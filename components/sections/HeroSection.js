@@ -70,7 +70,7 @@ export default function HeroSection({ data, site }) {
             </em>
           </h1>
 
-          {/* Tags */Р*/
+          {/* Tags */}
           <div className={styles.tags} aria-hidden="true">
             {data.subline_tags.map((tag, i) => (
               <span key={i} className={styles.tag}>
