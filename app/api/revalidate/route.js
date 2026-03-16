@@ -1,17 +1,49 @@
-import { revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
-export async function POST(req) {
-  const { secret, tags } = await req.json();
+/**
+ * POST /api/revalidate
+ *
+ * Called by a Directus Flow webhook whenever content is saved.
+ * Triggers ISR revalidation so the site reflects CMS changes immediately.
+ *
+ * ── Setup in Directus ────────────────────────────────────────────────────────
+ * 1. Go to Settings → Flows → Create Flow
+ * 2. Trigger: Action (After Save) on collections: site_settings, hero_section,
+ *    about_section, experiences, why_items, gallery_items, etc.
+ * 3. Add operation: Webhook / Request URL
+ *    Method: POST
+ *    URL: https://your-site.com/api/revalidate
+ *    Headers: { "x-revalidate-secret": "your-REVALIDATE_SECRET-value" }
+ *    Body: { "path": "/" }
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+export async function POST(request) {
+  const secret = request.headers.get('x-revalidate-secret');
 
-  if (secret !== process.env.REVALIDATION_SECRET) {
-    return NextResponse.json({ error: 'Invalid secret' }, { status: 401 });
+  // Validate secret
+  if (secret !== process.env.REVALIDATE_SECRET) {
+    return NextResponse.json(
+      { message: 'Invalid revalidation secret' },
+      { status: 401 }
+    );
   }
 
-  const tagList = Array.isArray(tags) ? tags : [tags];
-  for (const tag of tagList) {
-    revalidateTag(tag);
-  }
+  try {
+    const body = await request.json().catch(() => ({}));
+    const path = body.path || '/';
 
-  return NextResponse.json({ revalidated: true, tags });
+    revalidatePath(path);
+
+    return NextResponse.json({
+      revalidated: true,
+      path,
+      now: Date.now(),
+    });
+  } catch (err) {
+    return NextResponse.json(
+      { message: 'Revalidation failed', error: err.message },
+      { status: 500 }
+    );
+  }
 }
