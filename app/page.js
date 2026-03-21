@@ -4,6 +4,8 @@ import StatementSection   from '@/components/sections/StatementSection';
 import AboutSection       from '@/components/sections/AboutSection';
 import LagoonSection      from '@/components/sections/LagoonSection';
 import ExperiencesSection from '@/components/sections/ExperiencesSection';
+import AsadoresSection    from '@/components/sections/AsadoresSection';
+import CampingSection     from '@/components/sections/CampingSection';
 import WhySection         from '@/components/sections/WhySection';
 import GallerySection     from '@/components/sections/GallerySection';
 import VideoSection       from '@/components/sections/VideoSection';
@@ -26,6 +28,8 @@ export default async function HomePage() {
       <AboutSection       data={config.about}       site={config.site} />
       <LagoonSection      data={config.lagoon} />
       <ExperiencesSection data={config.experiences} site={config.site} />
+      <AsadoresSection    data={config.asadores}    site={config.site} />
+      <CampingSection     data={config.camping}     site={config.site} />
       <WhySection         data={config.why} />
       <GallerySection     data={config.gallery} />
       <VideoSection       data={config.video} />

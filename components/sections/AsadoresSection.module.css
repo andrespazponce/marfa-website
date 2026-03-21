@@ -1,0 +1,392 @@
+/* ── Section ──────────────────────────────────────────────────────────────── */
+.section {
+  padding: var(--sp-xl) 0 var(--sp-lg);
+  background: var(--clr-bg-warm);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.header {
+  margin-bottom: 4rem;
+}
+
+.subline {
+  margin-top: 1.25rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--clr-text-dim);
+  max-width: 560px;
+}
+
+/* ── Card Grid ────────────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+}
+
+.cardWrapper {
+  /* filled by RevealWrapper */
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────────── */
+.card {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--clr-surface);
+  border: none;
+  padding: 0;
+  text-align: left;
+}
+
+.cardImg {
+  position: absolute;
+  inset: 0;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.card:hover .cardImg {
+  transform: scale(1.07);
+}
+
+.cardImgInner {
+  object-fit: cover;
+  transition: opacity var(--dur-base) ease;
+}
+
+.card:hover .cardImgInner {
+  opacity: 0.8;
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top,
+    rgba(5, 12, 5, 0.88) 0%,
+    rgba(5, 12, 5, 0.15) 55%,
+    transparent 100%
+  );
+}
+
+.cardContent {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1.5rem;
+  z-index: 2;
+}
+
+.cardNum {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--clr-gold);
+  margin-bottom: 0.25rem;
+}
+
+.cardName {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  font-weight: 400;
+  color: var(--clr-text);
+  margin-bottom: 0.5rem;
+  line-height: 1.2;
+}
+
+.cardCta {
+  display: inline-block;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  transition: color var(--dur-fast) ease;
+}
+
+.card:hover .cardCta {
+  color: var(--clr-gold);
+}
+
+/* Bottom CTA */
+.bottomCta {
+  max-width: 1280px;
+  margin: 3rem auto 0;
+  padding: 0 2rem;
+  text-align: center;
+}
+
+.ctaBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2.2rem;
+  border: 1px solid var(--clr-gold);
+  color: var(--clr-gold);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  transition: background var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.ctaBtn:hover {
+  background: var(--clr-gold);
+  color: var(--clr-bg);
+}
+
+/* ── Modal ────────────────────────────────────────────────────────────────── */
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 4, 0.97);
+  z-index: var(--z-modal);
+  overflow-y: auto;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.modalInner {
+  width: 100%;
+  max-width: 1040px;
+  padding: 5rem 2rem 6rem;
+}
+
+.modalClose {
+  position: fixed;
+  top: 1.5rem;
+  right: 2rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.8rem;
+  cursor: pointer;
+  line-height: 1;
+  z-index: 10;
+  transition: color var(--dur-fast) ease;
+}
+
+.modalClose:hover {
+  color: var(--clr-gold);
+}
+
+.modalHeader {
+  margin-bottom: 2.5rem;
+}
+
+.modalEyebrow {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--clr-gold);
+  margin-bottom: 0.6rem;
+}
+
+.modalTitle {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 300;
+  color: var(--clr-text);
+  line-height: 1.1;
+}
+
+.modalRule {
+  width: 3rem;
+  height: 1px;
+  background: var(--clr-gold);
+  margin-top: 1.25rem;
+}
+
+/* ── Modal Gallery ────────────────────────────────────────────────────────── */
+.modalGallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 4px;
+  margin-bottom: 2.5rem;
+}
+
+.modalPhotoBtn {
+  position: relative;
+  background: var(--clr-surface);
+  border: none;
+  cursor: pointer;
+  overflow: hidden;
+  height: 280px;
+  display: block;
+  padding: 0;
+  transition: opacity var(--dur-fast) ease;
+}
+
+.modalPhotoBtn:hover {
+  opacity: 0.88;
+}
+
+.modalPhotoMain {
+  grid-column: 1 / -1;
+  height: 420px;
+}
+
+.modalPhotoImg {
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.modalPhotoBtn:hover .modalPhotoImg {
+  transform: scale(1.03);
+}
+
+/* ── Modal Actions ────────────────────────────────────────────────────────── */
+.modalActions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+.modalBookBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.9rem 2rem;
+  background: var(--clr-gold);
+  color: var(--clr-bg);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.modalBookBtn:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+}
+
+.modalSecondaryBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.9rem 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--clr-text-dim);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  transition: border-color var(--dur-fast) ease, color var(--dur-fast) ease;
+}
+
+.modalSecondaryBtn:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  color: var(--clr-text);
+}
+
+/* ── Lightbox ─────────────────────────────────────────────────────────────── */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 5, 2, 0.98);
+  z-index: calc(var(--z-modal) + 10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lbImgWrap {
+  position: relative;
+  width: 90vw;
+  height: 85vh;
+}
+
+.lbImg {
+  object-fit: contain;
+}
+
+.lbClose {
+  position: absolute;
+  top: 1.5rem;
+  right: 2rem;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.8rem;
+  cursor: pointer;
+  z-index: 10;
+  transition: color var(--dur-fast) ease;
+}
+
+.lbClose:hover { color: var(--clr-gold); }
+
+.lbPrev,
+.lbNext {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 3rem;
+  cursor: pointer;
+  padding: 1rem;
+  z-index: 10;
+  transition: color var(--dur-fast) ease;
+  line-height: 1;
+}
+
+.lbPrev:hover,
+.lbNext:hover { color: var(--clr-gold); }
+
+.lbPrev { left: 1rem; }
+.lbNext { right: 1rem; }
+
+.lbCounter {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.1em;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 700px) {
+  .grid { grid-template-columns: repeat(2, 1fr); }
+  .card { height: 260px; }
+  .modalGallery { grid-template-columns: 1fr; }
+  .modalPhotoBtn { height: 240px; }
+  .modalPhotoMain { height: 300px; }
+  .lbImgWrap { width: 98vw; height: 80vh; }
+}
+
+@media (max-width: 440px) {
+  .grid { grid-template-columns: 1fr; }
+}

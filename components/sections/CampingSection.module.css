@@ -1,0 +1,207 @@
+/* ── Section ──────────────────────────────────────────────────────────────── */
+.section {
+  padding: var(--sp-xl) 0 var(--sp-lg);
+  background: var(--clr-bg);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ── Two-column grid ──────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem;
+  align-items: center;
+}
+
+/* ── Text column ──────────────────────────────────────────────────────────── */
+.textCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.description {
+  margin-top: 1.5rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--clr-text-dim);
+  line-height: 1.75;
+  max-width: 480px;
+}
+
+/* ── Feature list ─────────────────────────────────────────────────────────── */
+.features {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.featureIcon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.featureTitle {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--clr-text);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 0.2rem;
+}
+
+.featureDesc {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 300;
+  color: var(--clr-text-dim);
+  line-height: 1.6;
+}
+
+/* ── CTA row ──────────────────────────────────────────────────────────────── */
+.ctaRow {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.9rem 2.2rem;
+  background: var(--clr-gold);
+  color: var(--clr-bg);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  border-radius: var(--radius-sm);
+  transition: opacity var(--dur-fast) ease, transform var(--dur-fast) ease;
+}
+
+.ctaPrimary:hover {
+  opacity: 0.88;
+  transform: translateY(-2px);
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--clr-text-dim);
+  border-bottom: 1px solid transparent;
+  transition: color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+
+.ctaSecondary:hover {
+  color: var(--clr-text);
+  border-color: var(--clr-text-dim);
+}
+
+/* ── Media column ─────────────────────────────────────────────────────────── */
+.mediaCol {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Main photo */
+.mediaMain {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+}
+
+.mediaMainImg {
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.mediaMain:hover .mediaMainImg {
+  transform: scale(1.04);
+}
+
+/* Secondary row: photo + video side by side */
+.mediaRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.mediaSide {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 0 0 0 var(--radius-sm);
+}
+
+.mediaSideImg {
+  object-fit: cover;
+  transition: transform var(--dur-slow) var(--ease-out);
+}
+
+.mediaSide:hover .mediaSideImg {
+  transform: scale(1.05);
+}
+
+.mediaSideVideo {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  background: var(--clr-surface);
+  border-radius: 0 0 var(--radius-sm) 0;
+}
+
+.mediaSideVid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  .description {
+    max-width: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .ctaRow {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .mediaRow {
+    grid-template-columns: 1fr 1fr;
+  }
+}

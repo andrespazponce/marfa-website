@@ -46,6 +46,12 @@ export default function ExperiencesSection({ data, site }) {
                   <span className={styles.cardIcon} aria-hidden="true">{item.icon}</span>
                   <h3 className={styles.cardTitle}>{item.title}</h3>
                   <p className={styles.cardDesc}>{item.description}</p>
+                  {item.section_href ? (
+                  <a href={item.section_href} className={styles.cardCta}>
+                    {item.cta_label}
+                    <span aria-hidden="true"> →</span>
+                  </a>
+                ) : (
                   <a
                     href={waHref}
                     target="_blank"
@@ -55,6 +61,7 @@ export default function ExperiencesSection({ data, site }) {
                     {item.cta_label}
                     <span aria-hidden="true"> →</span>
                   </a>
+                )}
                 </div>
               </article>
             </RevealWrapper>

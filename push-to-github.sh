@@ -37,7 +37,7 @@ echo "Files to upload:"
 git status --short
 
 echo ""
-git commit -m "Update: add Asadores and Camping sections with photo galleries" 2>/dev/null || echo "(nothing new to commit)"
+git commit -m "feat: add Asadores and Camping VIP sections with real photos and video" 2>/dev/null || echo "(nothing new to commit)"
 
 echo ""
 echo "Pushing to GitHub..."
