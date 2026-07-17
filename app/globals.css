@@ -51,6 +51,38 @@
   --z-modal:    300;
 }
 
+/* ── Light Mode Tokens ────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --clr-bg:        #FAF8F2;
+  --clr-bg-warm:   #F4F0E6;
+  --clr-surface:   #FFFFFF;
+  --clr-border:    rgba(0, 0, 0, 0.09);
+  --clr-text:      #1C1A12;
+  --clr-text-dim:  #6A6655;
+  --clr-accent:    #4A7A3C;
+  --clr-gold:      #9E7424;
+}
+
+/* Smooth theme switch — only on color/bg properties to avoid breaking animations */
+body, section, article, nav, header, footer, aside,
+[class*="card"], [class*="section"], [class*="panel"],
+[class*="wrapper"], [class*="container"], [class*="inner"] {
+  transition: background-color 0.35s ease, border-color 0.35s ease;
+}
+h1, h2, h3, h4, h5, h6, p, span, a, li, label, small {
+  transition: color 0.25s ease;
+}
+
+/* Light mode image boost — removes the desaturation effect of white bg */
+[data-theme="light"] img {
+  filter: brightness(1.04) saturate(1.15) contrast(1.02);
+}
+
+/* Reset filter on hero (already bright video, no double filtering) */
+[data-theme="light"] video {
+  filter: none;
+}
+
 /* ── Reset ────────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
