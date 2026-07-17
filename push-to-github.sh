@@ -6,7 +6,7 @@
 
 set -e
 
-REPO="https://github.com/andrespazponce/marfa-website.git"
+REPO_BASE="github.com/andrespazponce/marfa-website.git"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 echo ""
@@ -14,36 +14,56 @@ echo "MARFA → GitHub Deployer"
 echo "========================"
 echo ""
 
-# Check if we're already in the git repo
+# ── Ask for GitHub token (not saved anywhere) ─────────────────
+echo "🔑 Ingresa tu GitHub Personal Access Token:"
+echo "   (ve a github.com → Settings → Developer Settings → Personal access tokens → Tokens (classic))"
+echo "   El token debe tener permiso: repo"
+echo ""
+read -s -p "Token: " GITHUB_TOKEN
+echo ""
+
+if [ -z "$GITHUB_TOKEN" ]; then
+  echo "❌ Token vacío. Cancelando."
+  exit 1
+fi
+
+REPO="https://andrespazponce:${GITHUB_TOKEN}@${REPO_BASE}"
+
+# ── Git repo setup ────────────────────────────────────────────
 if [ -d "$SCRIPT_DIR/.git" ]; then
-  echo "✓ Git repo found."
+  echo "✓ Git repo encontrado."
   cd "$SCRIPT_DIR"
 else
-  echo "Setting up git repo..."
+  echo "Configurando git repo..."
   cd "$SCRIPT_DIR"
   git init
-  git remote add origin "$REPO" 2>/dev/null || git remote set-url origin "$REPO"
-  # Pull existing state
+  git remote add origin "$REPO" 2>/dev/null || true
   git fetch origin
   git checkout -b main origin/main 2>/dev/null || git checkout main 2>/dev/null || true
 fi
 
+# Update remote URL with token for this session
+git remote set-url origin "$REPO" 2>/dev/null || true
+
 echo ""
-echo "Staging all changes..."
+echo "Preparando archivos..."
 git add -A
 
 echo ""
-echo "Files to upload:"
+echo "Archivos a subir:"
 git status --short
 
 echo ""
-git commit -m "feat: new hero video, brighter images, illustrated map, Actividades nav" 2>/dev/null || echo "(nothing new to commit)"
+git commit -m "feat: update website — Claude changes" 2>/dev/null || echo "(sin cambios nuevos — solo pushing)"
 
 echo ""
-echo "Pushing to GitHub..."
+echo "Subiendo a GitHub..."
 git push origin main
 
+# Remove token from remote URL after push (security)
+git remote set-url origin "https://github.com/${REPO_BASE}" 2>/dev/null || true
+
 echo ""
-echo "✅ Done! Vercel will auto-deploy in ~30 seconds."
-echo "   Check: https://marfa-website.vercel.app"
+echo "✅ ¡Listo! Vercel desplegará en ~30 segundos."
+echo "   Sitio: https://marfa-website.vercel.app"
 echo ""
