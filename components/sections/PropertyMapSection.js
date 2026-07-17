@@ -1,10 +1,45 @@
-'use client';
-import { useState } from 'react';
-import RevealWrapper from '@/components/ui/RevealWrapper';
-import styles from './PropertyMapSection.module.css';
+// ── Coordinate system: viewBox 0 0 1000 806 ──────────────────────────────────
+// Source: satellite image 2000×1611 px → divide by 2 for SVG coords.
+// Red outline = property boundary · Blue outline = lagoon.
 
-// ── Marker positions ──────────────────────────────────────────────────────────
-// Coordinates in the 900×560 SVG space. Update after on-site survey.
+const PROPERTY = `
+  M 223,107
+  L 248,100 L 278,103 L 330,97  L 382,94
+  L 415,93  L 450,92  L 478,86  L 505,73
+  L 528,60  L 555,47
+  L 578,68  L 584,110 L 580,165
+  L 572,220 L 562,270 L 550,308
+  L 538,340 L 520,360 L 502,373
+  L 488,376 L 471,368 L 458,362
+  L 440,368 L 420,383 L 395,405
+  L 365,432 L 328,468 L 302,512
+  L 289,558 L 285,628 L 284,720 L 284,790
+  L 180,790
+  L 180,720 L 182,630 L 186,534
+  L 190,450 L 195,393 L 203,360
+  L 210,335 L 218,305 L 222,278 L 222,260
+  L 218,238 L 213,198 L 210,168
+  L 208,148 L 210,128 L 218,116 L 223,107 Z
+`.trim();
+
+const LAGOON = `
+  M 225,260
+  L 210,255 L 195,248 L 180,238 L 168,225
+  L 160,208 L 158,188 L 158,170
+  L 163,155 L 170,143 L 180,135 L 195,128 L 212,122
+  L 230,117 L 258,110 L 290,105 L 320,99
+  L 352,95  L 382,93  L 410,93  L 430,100 L 450,115
+  L 457,133 L 458,160 L 456,184
+  L 448,207 L 437,224 L 426,234
+  L 413,242 L 399,248 L 386,249 L 374,248 L 363,248
+  L 368,252 L 380,260 L 398,268 L 412,276 L 418,290
+  L 413,300 L 403,307 L 393,305 L 382,300
+  L 372,290 L 365,276 L 360,262 L 357,256
+  L 348,254 L 325,253 L 305,255
+  L 285,258 L 260,260 L 235,261 L 225,260 Z
+`.trim();
+
+// ── Marker positions (placeholder – will be refined after on-site survey) ─────
 const MARKERS = [
   { id: 'c1', type: 'bbq', num: '1', label: 'Churrasquero C1', x: 248, y: 375, href: '#asadores' },
   { id: 'c2', type: 'bbq', num: '2', label: 'Churrasquero C2', x: 305, y: 358, href: '#asadores' },
@@ -36,360 +71,191 @@ const COLOR = {
 };
 
 // ── Tree helper ───────────────────────────────────────────────────────────────
-function Tree({ x, y, r }) {
+function Tree({ x, y, size = 14 }) {
+  const s = size;
   return (
     <g>
-      <circle cx={x + r * 0.08} cy={y + r * 0.12} r={r} fill="rgba(0,0,0,0.15)" />
-      <circle cx={x} cy={y} r={r} fill="#3D8040" />
-      <circle cx={x} cy={y} r={r * 0.72} fill="#4E9E52" />
-      <circle cx={x - r * 0.14} cy={y - r * 0.18} r={r * 0.3} fill="rgba(255,255,255,0.12)" />
+      <rect x={x - s * 0.1} y={y + s * 0.5} width={s * 0.2} height={s * 0.6} fill="#8A6030" />
+      <circle cx={x - s * 0.35} cy={y + s * 0.2} r={s * 0.42} fill="#2E6B22" />
+      <circle cx={x + s * 0.35} cy={y + s * 0.2} r={s * 0.42} fill="#2E6B22" />
+      <circle cx={x} cy={y - s * 0.1} r={s * 0.55} fill="#3A8030" />
+      <circle cx={x} cy={y - s * 0.3} r={s * 0.35} fill="#4A9038" />
     </g>
   );
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
 export default function PropertyMapSection({ data }) {
-  const [active, setActive] = useState(null);
-
   return (
-    <section className={styles.section} id="property-map" aria-labelledby="map-heading">
-      <div className={styles.container}>
-
-        {/* Header */}
-        <RevealWrapper direction="up" className={styles.header}>
+    <section className={styles.section} id="property-map">
+      <div className={styles.inner}>
+        <header className={styles.header}>
           <span className="section-eyebrow">{data.eyebrow}</span>
-          <h2 id="map-heading" className="section-headline">
+          <h2 className="section-headline">
             {data.headline} <em>{data.headline_italic}</em>
           </h2>
           <p className={styles.subline}>{data.subline}</p>
-        </RevealWrapper>
+        </header>
 
-        {/* Map */}
-        <RevealWrapper direction="up" delay={150} className={styles.mapOuter}>
-          <div className={styles.mapInner}>
-            <svg
-              viewBox="0 0 900 560"
-              className={styles.svg}
-              aria-label="Mapa ilustrado de la propiedad MARFA"
-              role="img"
-            >
-              <defs>
-                <linearGradient id="grassGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%"   stopColor="#8DC55E" />
-                  <stop offset="100%" stopColor="#6FAA40" />
-                </linearGradient>
-                <radialGradient id="lagoonGrad" cx="45%" cy="40%" r="58%">
-                  <stop offset="0%"   stopColor="#9DDAF5" />
-                  <stop offset="55%"  stopColor="#58B4D8" />
-                  <stop offset="100%" stopColor="#3A8EBB" />
-                </radialGradient>
-                <linearGradient id="roadGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%"   stopColor="#C4A265" />
-                  <stop offset="100%" stopColor="#D8B87A" />
-                </linearGradient>
-                <filter id="mapShadow" x="-10%" y="-10%" width="120%" height="120%">
-                  <feDropShadow dx="0" dy="3" stdDeviation="6" floodOpacity="0.3" />
-                </filter>
-              </defs>
+        <div className={styles.mapWrap}>
+          <svg
+            viewBox="0 0 1000 806"
+            xmlns="http://www.w3.org/2000/svg"
+            className={styles.mapSvg}
+            role="img"
+            aria-label="Mapa ilustrado de la propiedad MARFA"
+          >
+            <defs>
+              <linearGradient id="bgGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#A8D080" />
+                <stop offset="100%" stopColor="#7AB858" />
+              </linearGradient>
+              <linearGradient id="propGrad" x1="0.1" y1="0" x2="0.9" y2="1">
+                <stop offset="0%" stopColor="#5A9840" />
+                <stop offset="60%" stopColor="#488030" />
+                <stop offset="100%" stopColor="#3A6825" />
+              </linearGradient>
+              <linearGradient id="waterGrad" x1="0.1" y1="0" x2="0.85" y2="1">
+                <stop offset="0%" stopColor="#88D4EE" />
+                <stop offset="45%" stopColor="#52BADB" />
+                <stop offset="100%" stopColor="#3498BC" />
+              </linearGradient>
+              <radialGradient id="forestDark" cx="50%" cy="40%" r="55%">
+                <stop offset="0%" stopColor="#245A1A" />
+                <stop offset="100%" stopColor="#1A4212" />
+              </radialGradient>
+              <filter id="propShadow" x="-5%" y="-5%" width="115%" height="115%">
+                <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#00000055" />
+              </filter>
+              <filter id="lagoonGlow" x="-5%" y="-5%" width="110%" height="110%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="4" result="b" />
+                <feOffset dy="2" in="b" result="ob" />
+                <feMerge><feMergeNode in="ob" /><feMergeNode in="SourceGraphic" /></feMerge>
+              </filter>
+            </defs>
 
-              {/* ── 1. Grass base ─────────────────────────────────────────── */}
-              <rect x="0" y="0" width="900" height="560" fill="url(#grassGrad)" />
+            {/* ── Surrounding fields ───────────────────────────────────── */}
+            <rect width="1000" height="806" fill="url(#bgGrad)" />
+            {[...Array(10)].map((_, i) => (
+              <line key={i} x1="0" y1={i * 82} x2="1000" y2={i * 82}
+                stroke="#98C870" strokeWidth="0.8" strokeOpacity="0.3" />
+            ))}
 
-              {/* ── 2. Roads / paths ──────────────────────────────────────── */}
-              {/* Main entry road */}
-              <path d="M 432,560 L 432,480 C 432,462 425,448 415,438"
-                stroke="#B8924E" strokeWidth="16" fill="none" strokeLinecap="round" />
-              <path d="M 432,560 L 432,480 C 432,462 425,448 415,438"
-                stroke="#D4B070" strokeWidth="11" fill="none" strokeLinecap="round" />
-              <path d="M 432,560 L 432,480 C 432,462 425,448 415,438"
-                stroke="#E8CC90" strokeWidth="2.5" fill="none" strokeLinecap="round"
-                strokeDasharray="10,9" />
+            {/* ── Property fill ─────────────────────────────────────────── */}
+            <path d={PROPERTY} fill="url(#propGrad)" filter="url(#propShadow)" />
 
-              {/* Path to churrasquero cluster */}
-              <path d="M 412,435 C 395,425 370,410 340,395 C 310,382 285,378 260,378"
-                stroke="#B8924E" strokeWidth="10" fill="none" strokeLinecap="round" />
-              <path d="M 412,435 C 395,425 370,410 340,395 C 310,382 285,378 260,378"
-                stroke="#D4B070" strokeWidth="7" fill="none" strokeLinecap="round" />
+            {/* ── Dense forest: upper-right block ──────────────────────── */}
+            <ellipse cx="555" cy="192" rx="115" ry="90" fill="url(#forestDark)" opacity="0.93" />
+            <ellipse cx="592" cy="262" rx="80"  ry="65" fill="url(#forestDark)" opacity="0.88" />
+            <ellipse cx="482" cy="242" rx="46"  ry="38" fill="url(#forestDark)" opacity="0.82" />
+            <ellipse cx="542" cy="302" rx="54"  ry="42" fill="url(#forestDark)" opacity="0.78" />
 
-              {/* Path to camping (softer, dashed) */}
-              <path d="M 290,390 C 240,370 185,352 132,332"
-                stroke="#C4B080" strokeWidth="6" fill="none" strokeLinecap="round"
-                strokeDasharray="7,6" opacity="0.75" />
+            {/* ── Dense forest: lower section ───────────────────────────── */}
+            <ellipse cx="292" cy="598" rx="70"  ry="57" fill="url(#forestDark)" opacity="0.88" />
+            <ellipse cx="247" cy="658" rx="52"  ry="47" fill="url(#forestDark)" opacity="0.85" />
+            <ellipse cx="312" cy="702" rx="63"  ry="52" fill="url(#forestDark)" opacity="0.90" />
+            <ellipse cx="248" cy="758" rx="38"  ry="32" fill="url(#forestDark)" opacity="0.82" />
+            <ellipse cx="342" cy="640" rx="45"  ry="38" fill="url(#forestDark)" opacity="0.80" />
+            <ellipse cx="440" cy="345" rx="37"  ry="29" fill="url(#forestDark)" opacity="0.72" />
 
-              {/* Path to fishing dock */}
-              <path d="M 134,330 C 140,305 148,280 162,268"
-                stroke="#C4B080" strokeWidth="5" fill="none" strokeLinecap="round"
-                strokeDasharray="5,5" opacity="0.6" />
+            {/* ── Roads / paths ─────────────────────────────────────────── */}
+            <path d="M 232,790 L 232,690 L 230,575 L 226,462 L 223,380 L 220,308 L 219,286"
+              fill="none" stroke="#B8A870" strokeWidth="10" strokeLinecap="round" />
+            <path d="M 232,790 L 232,690 L 230,575 L 226,462 L 223,380 L 220,308 L 219,286"
+              fill="none" stroke="#D4C490" strokeWidth="6" strokeLinecap="round" />
+            {/* Left branch */}
+            <path d="M 219,286 Q 205,276 192,268 L 185,262"
+              fill="none" stroke="#B8A870" strokeWidth="8" strokeLinecap="round" />
+            <path d="M 219,286 Q 205,276 192,268 L 185,262"
+              fill="none" stroke="#D4C490" strokeWidth="5" strokeLinecap="round" />
+            {/* Right branch */}
+            <path d="M 219,286 L 220,268"
+              fill="none" stroke="#B8A870" strokeWidth="8" strokeLinecap="round" />
+            <path d="M 219,286 L 220,268"
+              fill="none" stroke="#D4C490" strokeWidth="5" strokeLinecap="round" />
 
-              {/* Path to WC */}
-              <path d="M 412,438 C 430,435 448,422 460,410"
-                stroke="#B8924E" strokeWidth="7" fill="none" strokeLinecap="round" />
-              <path d="M 412,438 C 430,435 448,422 460,410"
-                stroke="#D4B070" strokeWidth="4.5" fill="none" strokeLinecap="round" />
+            {/* ── Lagoon ────────────────────────────────────────────────── */}
+            <path d={LAGOON} fill="url(#waterGrad)" filter="url(#lagoonGlow)" />
 
-              {/* ── 3. Lagoon ─────────────────────────────────────────────── */}
-              <path
-                d="M 228,140
-                   C 212,106 220,70 252,50
-                   C 284,30 348,26 410,44
-                   C 472,62 526,98 532,152
-                   C 538,206 510,252 470,272
-                   C 440,288 396,302 354,296
-                   C 304,288 258,264 232,236
-                   C 206,208 208,170 218,150
-                   C 222,145 225,142 228,140 Z"
-                fill="url(#lagoonGrad)"
-                stroke="#6EB8D8"
-                strokeWidth="2"
-              />
+            {/* Water shimmer */}
+            <g opacity="0.55" strokeLinecap="round">
+              <path d="M 185,200 Q 252,188 322,188 Q 374,188 404,200"
+                fill="none" stroke="#D0EEFF" strokeWidth="2.5" />
+              <path d="M 174,218 Q 236,206 298,208"
+                fill="none" stroke="#D0EEFF" strokeWidth="1.8" />
+              <path d="M 248,240 Q 308,228 367,232"
+                fill="none" stroke="#D0EEFF" strokeWidth="1.5" />
+              <path d="M 288,120 Q 358,112 424,122"
+                fill="none" stroke="#D0EEFF" strokeWidth="1.5" />
+              <path d="M 395,270 Q 406,280 410,294"
+                fill="none" stroke="#D0EEFF" strokeWidth="1.5" />
+            </g>
 
-              {/* Lagoon highlight / shore shimmer */}
-              <path
-                d="M 228,140
-                   C 212,106 220,70 252,50
-                   C 284,30 348,26 410,44
-                   C 472,62 526,98 532,152
-                   C 538,206 510,252 470,272
-                   C 440,288 396,302 354,296
-                   C 304,288 258,264 232,236
-                   C 206,208 208,170 218,150
-                   C 222,145 225,142 228,140 Z"
-                fill="none"
-                stroke="rgba(200,240,255,0.45)"
-                strokeWidth="7"
-              />
+            {/* Shoreline */}
+            <path d={LAGOON} fill="none" stroke="#2888AA" strokeWidth="1.8" strokeOpacity="0.6" />
 
-              {/* Water ripples */}
-              <ellipse cx="355" cy="150" rx="45" ry="16" fill="none" stroke="rgba(255,255,255,0.28)" strokeWidth="1.5" />
-              <ellipse cx="388" cy="185" rx="30" ry="11" fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="1.5" />
-              <ellipse cx="310" cy="195" rx="35" ry="13" fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="1.5" />
-              <ellipse cx="445" cy="140" rx="22" ry="8"  fill="none" stroke="rgba(255,255,255,0.22)" strokeWidth="1.5" />
-              <ellipse cx="275" cy="175" rx="18" ry="7"  fill="none" stroke="rgba(255,255,255,0.18)" strokeWidth="1.5" />
+            {/* ── Shore trees ───────────────────────────────────────────── */}
+            <Tree x={170} y={175} size={12} />
+            <Tree x={158} y={215} size={10} />
+            <Tree x={166} y={246} size={11} />
+            <Tree x={210} y={263} size={10} />
+            <Tree x={398} y={108} size={11} />
+            <Tree x={448} y={120} size={10} />
+            <Tree x={218} y={110} size={12} />
+            <Tree x={334} y={95}  size={10} />
+            <Tree x={432} y={257} size={11} />
+            <Tree x={370} y={256} size={10} />
+            <Tree x={462} y={130} size={9}  />
 
-              {/* Lagoon label */}
-              <text
-                x="368" y="165"
-                textAnchor="middle"
-                fontFamily="Georgia, 'Times New Roman', serif"
-                fontSize="14"
-                fontStyle="italic"
-                fill="rgba(255,255,255,0.88)"
-                style={{ pointerEvents: 'none', userSelect: 'none' }}
-              >
-                Laguna MARFA
+            {/* ── Property boundary dashed line ────────────────────────── */}
+            <path d={PROPERTY} fill="none"
+              stroke="#CC4015" strokeWidth="3"
+              strokeDasharray="10,5" strokeLinecap="round" opacity="0.88" />
+
+            {/* ── Lagoon label ──────────────────────────────────────────── */}
+            <text x="308" y="174" textAnchor="middle"
+              fill="#1868A0" fontSize="13" fontFamily="Georgia, serif"
+              fontStyle="italic" fontWeight="bold" opacity="0.82">
+              Laguna MARFA
+            </text>
+
+            {/* ── Compass rose ──────────────────────────────────────────── */}
+            <g transform="translate(945,65)">
+              <circle r="24" fill="white" fillOpacity="0.14"
+                stroke="white" strokeOpacity="0.32" strokeWidth="1.5" />
+              <text textAnchor="middle" y="-10" fill="white"
+                fontSize="9" fontWeight="bold" opacity="0.72" fontFamily="sans-serif">N</text>
+              <path d="M 0,-18 L 4,-5 L 0,0 L -4,-5 Z" fill="white" opacity="0.72" />
+              <path d="M 0,18 L 4,5 L 0,0 L -4,5 Z"   fill="white" opacity="0.28" />
+              <path d="M -18,0 L -5,4 L 0,0 L -5,-4 Z" fill="white" opacity="0.28" />
+              <path d="M  18,0 L  5,4 L 0,0 L  5,-4 Z" fill="white" opacity="0.28" />
+            </g>
+
+            {/* ── Scale label ───────────────────────────────────────────── */}
+            <g transform="translate(42,762)">
+              <rect width="116" height="22" rx="4" fill="#1A1A1A" fillOpacity="0.55" />
+              <text x="58" textAnchor="middle" y="15" fill="#E8E4DC"
+                fontSize="9" fontFamily="sans-serif" letterSpacing="1.5" fontWeight="300">
+                19 HECTÁREAS
               </text>
+            </g>
 
-              {/* Fishing dock */}
-              <rect x="152" y="252" width="6" height="22" fill="#7A5C2A" rx="2" />
-              <rect x="148" y="250" width="14" height="4"  fill="#9A7535" rx="1" />
-              <rect x="156" y="245" width="14" height="3"  fill="#9A7535" rx="1" opacity="0.6" />
-
-              {/* ── 4. Forests ────────────────────────────────────────────── */}
-              {/* Right dense forest */}
-              <Tree x={598} y={55}  r={55} />
-              <Tree x={670} y={45}  r={62} />
-              <Tree x={748} y={52}  r={58} />
-              <Tree x={820} y={42}  r={52} />
-              <Tree x={870} y={60}  r={48} />
-              <Tree x={625} y={130} r={60} />
-              <Tree x={705} y={122} r={65} />
-              <Tree x={785} y={130} r={60} />
-              <Tree x={852} y={125} r={54} />
-              <Tree x={610} y={208} r={62} />
-              <Tree x={688} y={200} r={68} />
-              <Tree x={765} y={212} r={62} />
-              <Tree x={840} y={208} r={56} />
-              <Tree x={888} y={180} r={45} />
-              <Tree x={618} y={290} r={60} />
-              <Tree x={695} y={285} r={65} />
-              <Tree x={772} y={295} r={60} />
-              <Tree x={848} y={290} r={54} />
-              <Tree x={888} y={268} r={46} />
-              <Tree x={630} y={370} r={58} />
-              <Tree x={706} y={365} r={64} />
-              <Tree x={780} y={375} r={58} />
-              <Tree x={852} y={370} r={52} />
-              <Tree x={638} y={448} r={55} />
-              <Tree x={712} y={445} r={60} />
-              <Tree x={786} y={455} r={55} />
-              <Tree x={855} y={448} r={50} />
-
-              {/* Upper-left corner small forest patch */}
-              <Tree x={42}  y={48}  r={40} />
-              <Tree x={95}  y={38}  r={45} />
-              <Tree x={148} y={44}  r={42} />
-              <Tree x={58}  y={102} r={38} />
-              <Tree x={105} y={96}  r={44} />
-
-              {/* Left-side scattered trees */}
-              <Tree x={50}  y={200} r={36} />
-              <Tree x={38}  y={280} r={34} />
-              <Tree x={55}  y={360} r={38} />
-              <Tree x={42}  y={440} r={36} />
-
-              {/* Lower-right scattered trees */}
-              <Tree x={580} y={490} r={42} />
-              <Tree x={650} y={510} r={46} />
-              <Tree x={725} y={505} r={42} />
-              <Tree x={800} y={515} r={40} />
-              <Tree x={865} y={510} r={36} />
-
-              {/* ── 5. BBQ / Churrasquero shelter icons ───────────────────── */}
-              {/* Small wooden shelter rectangles behind churrasquero markers */}
-              {[
-                [248, 375], [305, 358], [363, 363], [420, 356],
-                [262, 418], [322, 413], [381, 416],
-              ].map(([x, y], i) => (
-                <rect
-                  key={i}
-                  x={x - 12} y={y - 8}
-                  width={24} height={18}
-                  rx={3}
-                  fill="#7A5C2A"
-                  opacity={0.4}
-                />
-              ))}
-
-              {/* ── 6. Markers ────────────────────────────────────────────── */}
-              {MARKERS.map(m => (
-                <g
-                  key={m.id}
-                  className={styles.markerGroup}
-                  onClick={() => m.href && (window.location.href = m.href)}
-                  onMouseEnter={() => setActive(m.id)}
-                  onMouseLeave={() => setActive(null)}
-                  style={{ cursor: m.href ? 'pointer' : 'default' }}
-                >
-                  {/* Drop shadow */}
-                  <circle
-                    cx={m.x + 2} cy={m.y + 3}
-                    r={m.type === 'entrance' ? 16 : 14}
-                    fill="rgba(0,0,0,0.25)"
-                    className={styles.markerShadow}
-                  />
-                  {/* Main circle */}
-                  <circle
-                    cx={m.x} cy={m.y}
-                    r={m.type === 'entrance' ? 16 : 14}
-                    fill={COLOR[m.type]}
-                    stroke="rgba(255,255,255,0.9)"
-                    strokeWidth="2.5"
-                    className={styles.markerCircle}
-                  />
-                  {/* Number badge for churrasqueros */}
-                  {m.num ? (
-                    <text
-                      x={m.x} y={m.y + 1}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fontFamily="Arial, sans-serif"
-                      fontSize="10"
-                      fontWeight="700"
-                      fill="white"
-                      style={{ pointerEvents: 'none', userSelect: 'none' }}
-                    >
-                      {m.num}
-                    </text>
-                  ) : (
-                    <text
-                      x={m.x} y={m.y + 1}
-                      textAnchor="middle"
-                      dominantBaseline="middle"
-                      fontSize="12"
-                      style={{ pointerEvents: 'none', userSelect: 'none' }}
-                    >
-                      {ICON[m.type]}
-                    </text>
-                  )}
-
-                  {/* Tooltip on hover */}
-                  {active === m.id && (
-                    <g className={styles.tooltip}>
-                      <rect
-                        x={m.x - 56} y={m.y - 42}
-                        width={112} height={26}
-                        rx={6}
-                        fill="rgba(20,20,20,0.92)"
-                      />
-                      <polygon
-                        points={`${m.x - 5},${m.y - 17} ${m.x + 5},${m.y - 17} ${m.x},${m.y - 10}`}
-                        fill="rgba(20,20,20,0.92)"
-                      />
-                      <text
-                        x={m.x} y={m.y - 26}
-                        textAnchor="middle"
-                        dominantBaseline="middle"
-                        fontFamily="Arial, sans-serif"
-                        fontSize="10"
-                        fontWeight="500"
-                        fill="white"
-                        style={{ pointerEvents: 'none', userSelect: 'none' }}
-                      >
-                        {m.label}
-                      </text>
-                    </g>
-                  )}
-                </g>
-              ))}
-
-              {/* ── 7. Static labels for key areas ────────────────────────── */}
-              {/* Churrasquero zone label */}
-              <rect x="226" y="438" width="210" height="18" rx="4" fill="rgba(0,0,0,0.35)" />
-              <text
-                x="331" y="450"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontFamily="Arial, sans-serif"
-                fontSize="9"
-                fontWeight="600"
-                letterSpacing="1.5"
-                fill="rgba(255,255,255,0.85)"
-                style={{ pointerEvents: 'none', userSelect: 'none' }}
-              >
-                ZONA DE CHURRASQUEROS
+            {/* ── Coming-soon badge ─────────────────────────────────────── */}
+            <g transform="translate(490,500)">
+              <rect x="-115" y="-20" width="230" height="40" rx="20"
+                fill="#1A1A1A" fillOpacity="0.62" />
+              <text textAnchor="middle" y="6" fill="#C9A96E"
+                fontSize="10.5" fontFamily="Georgia, serif" letterSpacing="2.5">
+                PUNTOS POR AÑADIR
               </text>
+            </g>
 
-              {/* Property boundary outline */}
-              <rect x="4" y="4" width="892" height="552" rx="6"
-                fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth="2" />
+          </svg>
+        </div>
 
-              {/* MARFA watermark */}
-              <text
-                x="880" y="548"
-                textAnchor="end"
-                fontFamily="Georgia, serif"
-                fontSize="10"
-                fill="rgba(255,255,255,0.3)"
-                style={{ pointerEvents: 'none', userSelect: 'none' }}
-              >
-                © MARFA
-              </text>
-            </svg>
-
-            {/* ── Legend ──────────────────────────────────────────────────── */}
-            <div className={styles.legend}>
-              {[
-                { type: 'bbq',      label: 'Churrasqueros (C1–C7)' },
-                { type: 'camping',  label: 'Camping VIP' },
-                { type: 'fishing',  label: 'Pesca deportiva' },
-                { type: 'wc',       label: 'Servicios' },
-                { type: 'entrance', label: 'Entrada' },
-              ].map(item => (
-                <div key={item.type} className={styles.legendItem}>
-                  <span
-                    className={styles.legendDot}
-                    style={{ background: COLOR[item.type] }}
-                  />
-                  <span className={styles.legendLabel}>{item.label}</span>
-                </div>
-              ))}
-              <p className={styles.legendNote}>
-                Toca cada marcador para ver el detalle
-              </p>
-            </div>
-          </div>
-        </RevealWrapper>
-
+        <p className={styles.mapNote}>
+          Los puntos de interés (churrasqueros C1–C7, baños y camping) se añadirán al mapa pronto.
+        </p>
       </div>
     </section>
   );
