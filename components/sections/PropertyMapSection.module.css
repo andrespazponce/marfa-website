@@ -1,0 +1,136 @@
+/* ── Section ──────────────────────────────────────────────────────────────── */
+.section {
+  padding: var(--sp-xl) 0 var(--sp-lg);
+  background: var(--clr-bg);
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+.header {
+  margin-bottom: 3rem;
+  max-width: 600px;
+}
+
+.subline {
+  margin-top: 1rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--clr-text-dim);
+  line-height: 1.7;
+}
+
+/* ── Map outer wrapper ────────────────────────────────────────────────────── */
+.mapOuter {
+  width: 100%;
+}
+
+.mapInner {
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 12px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ── SVG map ──────────────────────────────────────────────────────────────── */
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #7BB951;
+}
+
+/* ── Marker interactivity ─────────────────────────────────────────────────── */
+.markerGroup {
+  transition: transform 0.15s ease;
+  transform-origin: center center;
+}
+
+.markerGroup:hover .markerCircle {
+  filter: brightness(1.2) drop-shadow(0 2px 6px rgba(0,0,0,0.4));
+}
+
+.markerGroup:hover {
+  transform: scale(1.25);
+}
+
+.markerShadow {
+  transition: opacity 0.15s ease;
+}
+
+.markerGroup:hover .markerShadow {
+  opacity: 0.4;
+}
+
+/* ── Legend ───────────────────────────────────────────────────────────────── */
+.legend {
+  background: var(--clr-surface);
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.75rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.5);
+}
+
+.legendLabel {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--clr-text-dim);
+  white-space: nowrap;
+}
+
+.legendNote {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 300;
+  color: var(--clr-text-dim);
+  opacity: 0.6;
+  font-style: italic;
+  margin-left: auto;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .legend {
+    gap: 0.5rem 1.25rem;
+    padding: 0.875rem 1rem;
+  }
+
+  .legendNote {
+    width: 100%;
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .legend {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .legendNote {
+    margin-left: 0;
+  }
+}

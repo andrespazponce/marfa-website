@@ -10,6 +10,7 @@ import WhySection         from '@/components/sections/WhySection';
 import GallerySection     from '@/components/sections/GallerySection';
 import VideoSection       from '@/components/sections/VideoSection';
 import BookingSection     from '@/components/sections/BookingSection';
+import PropertyMapSection from '@/components/sections/PropertyMapSection';
 import LocationSection    from '@/components/sections/LocationSection';
 import VisionSection      from '@/components/sections/VisionSection';
 import FooterSection      from '@/components/layout/FooterSection';
@@ -35,6 +36,7 @@ export default async function HomePage() {
       <GallerySection     data={config.gallery} />
       <VideoSection       data={config.video} />
       <BookingSection     data={config.booking}     site={config.site} />
+      <PropertyMapSection data={config.property_map} />
       <LocationSection    data={config.location} />
       <VisionSection      data={config.vision} />
       <FooterSection      site={config.site} />

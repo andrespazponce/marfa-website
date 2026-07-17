@@ -30,7 +30,7 @@ export default function Navbar({ config }) {
 
   const navLinks = [
     { label: 'La Laguna',   href: '#lagoon'       },
-    { label: 'Experiencias',href: '#experiences'  },
+    { label: 'Actividades', href: '#experiences'  },
     { label: 'Asadores',    href: '#asadores'     },
     { label: 'Camping',     href: '#camping'      },
     { label: 'Galería',     href: '#gallery'      },
