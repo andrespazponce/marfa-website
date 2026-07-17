@@ -1,3 +1,6 @@
+'use client';
+import styles from './PropertyMapSection.module.css';
+
 // ── Coordinate system: viewBox 0 0 1000 806 ──────────────────────────────────
 // Source: satellite image 2000×1611 px → divide by 2 for SVG coords.
 // Red outline = property boundary · Blue outline = lagoon.
