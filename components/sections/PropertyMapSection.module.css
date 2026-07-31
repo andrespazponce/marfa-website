@@ -12,7 +12,7 @@
 
 /* ── Header ───────────────────────────────────────────────────────────────── */
 .header {
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
   max-width: 600px;
 }
 
@@ -25,35 +25,316 @@
   line-height: 1.7;
 }
 
-/* ── Map wrapper ──────────────────────────────────────────────────────────── */
-.mapWrap {
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  box-shadow: 0 12px 60px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255,255,255,0.06);
+/* ── Edit toolbar ─────────────────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  min-height: 40px;
 }
 
-/* ── SVG map ──────────────────────────────────────────────────────────────── */
-.mapSvg {
+.toolbarLabel {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--clr-text-dim);
+}
+
+.toolbarHint {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  color: var(--clr-gold);
+  font-style: italic;
+  margin-left: 0.25rem;
+}
+
+.editBtn {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.25rem;
+  border-radius: 2px;
+  background: var(--clr-surface);
+  color: var(--clr-text);
+  border: 1px solid var(--clr-border);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.editBtn:hover,
+.editBtnActive {
+  background: var(--clr-gold);
+  color: #fff;
+  border-color: var(--clr-gold);
+}
+
+.typeBtn {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 20px;
+  background: var(--clr-surface);
+  color: var(--clr-text-dim);
+  border: 1.5px solid var(--clr-border);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all 0.15s ease;
+}
+
+.typeBtn:hover {
+  border-color: var(--clr-text-dim);
+  color: var(--clr-text);
+}
+
+.typeBtnActive {
+  background: var(--dot-color);
+  color: #fff;
+  border-color: var(--dot-color);
+  font-weight: 500;
+}
+
+/* ── Map container ────────────────────────────────────────────────────────── */
+.mapWrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255,255,255,0.06);
+  background: transparent;
+  line-height: 0; /* remove gap under img */
+  user-select: none;
+}
+
+.mapWrapEdit {
+  cursor: crosshair;
+  box-shadow: 0 0 0 2px var(--clr-gold), 0 16px 60px rgba(0,0,0,0.45);
+}
+
+/* ── Map image ────────────────────────────────────────────────────────────── */
+.mapImg {
   display: block;
   width: 100%;
   height: auto;
+  pointer-events: none;
 }
 
-/* ── Note below map ───────────────────────────────────────────────────────── */
-.mapNote {
-  margin-top: 1.25rem;
+/* ── SVG marker overlay ───────────────────────────────────────────────────── */
+.markerLayer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* ── Crosshair hint overlay in edit mode ─────────────────────────────────── */
+.crosshairHint {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: rgba(20,20,20,0.75);
+  color: var(--clr-gold);
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 0.375rem 0.75rem;
+  border-radius: 4px;
+  pointer-events: none;
+}
+
+/* ── Selected marker editor ──────────────────────────────────────────────── */
+.markerEditor {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 1rem;
+  padding: 0.875rem 1.25rem;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: 6px;
   font-family: var(--font-sans);
   font-size: 0.8125rem;
-  font-weight: 300;
+  color: var(--clr-text-dim);
+}
+
+.markerEditor strong {
+  color: var(--clr-text);
+  font-weight: 500;
+}
+
+.markerEditor label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.markerEditor input {
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  background: var(--clr-bg);
+  border: 1px solid var(--clr-border);
+  border-radius: 4px;
+  padding: 0.3rem 0.625rem;
+  color: var(--clr-text);
+  outline: none;
+  width: 180px;
+}
+
+.markerEditor input:focus {
+  border-color: var(--clr-gold);
+}
+
+.coordBadge {
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: var(--clr-text-dim);
+  background: var(--clr-bg);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid var(--clr-border);
+}
+
+.deleteBtn {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 4px;
+  background: rgba(200,40,40,0.12);
+  color: #e05050;
+  border: 1px solid rgba(200,40,40,0.25);
+  cursor: pointer;
+  transition: background 0.15s;
+  margin-left: auto;
+}
+
+.deleteBtn:hover {
+  background: rgba(200,40,40,0.22);
+}
+
+/* ── Export / coordinates panel ──────────────────────────────────────────── */
+.exportPanel {
+  margin-top: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+}
+
+.exportPanel summary {
+  cursor: pointer;
+  color: var(--clr-text-dim);
+  padding: 0.5rem 0;
+  user-select: none;
+}
+
+.exportPanel summary:hover {
+  color: var(--clr-gold);
+}
+
+.exportCode {
+  margin-top: 0.5rem;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: 6px;
+  padding: 1rem;
+  font-family: 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: var(--clr-text-dim);
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.6;
+}
+
+/* ── Legend ───────────────────────────────────────────────────────────────── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-top: 1.25rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--clr-surface);
+  border-radius: 6px;
+  border: 1px solid var(--clr-border);
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: var(--clr-text-dim);
+}
+
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+/* ── Bottom note ──────────────────────────────────────────────────────────── */
+.mapNote {
+  margin-top: 1.25rem;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
   color: var(--clr-text-dim);
   font-style: italic;
-  opacity: 0.7;
+}
+
+.addMarkersBtn {
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  font-style: normal;
+  padding: 0.375rem 0.875rem;
+  border-radius: 4px;
+  background: var(--clr-surface);
+  color: var(--clr-gold);
+  border: 1px solid var(--clr-border);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.addMarkersBtn:hover {
+  border-color: var(--clr-gold);
+  background: rgba(201,169,110,0.08);
 }
 
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .inner {
     padding: 0 1.25rem;
+  }
+
+  .toolbar {
+    gap: 0.4rem 0.5rem;
+  }
+
+  .typeBtn {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.625rem;
+  }
+
+  .markerEditor {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .deleteBtn {
+    margin-left: 0;
   }
 }
