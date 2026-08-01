@@ -126,7 +126,7 @@ export default function PropertyMapSection({ data }) {
               return (
                 <g
                   key={m.id}
-                  style={{ cursor: editMode ? 'pointer' : 'default' }}
+                  style={{ cursor: editMode ? 'pointer' : 'crosshair' }}
                   onClick={(e) => {
                     if (!editMode) return;
                     e.stopPropagation();
@@ -134,7 +134,6 @@ export default function PropertyMapSection({ data }) {
                     setLabelEdit(m.label);
                   }}
                   onMouseEnter={(e) => {
-                    if (editMode) return;
                     const svg = e.currentTarget.closest('svg');
                     const pt  = svg.createSVGPoint();
                     pt.x = e.clientX; pt.y = e.clientY;
@@ -143,35 +142,40 @@ export default function PropertyMapSection({ data }) {
                   }}
                   onMouseLeave={() => setTooltip(null)}
                 >
-                  {/* Shadow */}
-                  <circle cx={m.x + 0.3} cy={m.y + 0.5} r={isSel ? 2.8 : 2.3}
-                    fill="rgba(0,0,0,0.35)" />
-                  {/* Pin circle */}
-                  <circle cx={m.x} cy={m.y} r={isSel ? 2.8 : 2.2}
-                    fill={meta.color}
-                    stroke={isSel ? '#FFD700' : '#fff'}
-                    strokeWidth={isSel ? '0.5' : '0.35'} />
-                  {/* Icon as text */}
-                  <text x={m.x} y={m.y + 0.7}
-                    textAnchor="middle" fontSize="2.2"
-                    style={{ pointerEvents: 'none', userSelect: 'none' }}>
-                    {meta.icon}
-                  </text>
+                  {/* Invisible hotspot — always present for hover */}
+                  <circle cx={m.x} cy={m.y} r="3.5" fill="transparent" />
+
+                  {/* Visible marker — only in edit mode */}
+                  {editMode && (
+                    <>
+                      <circle cx={m.x + 0.3} cy={m.y + 0.5} r={isSel ? 2.8 : 2.3}
+                        fill="rgba(0,0,0,0.35)" />
+                      <circle cx={m.x} cy={m.y} r={isSel ? 2.8 : 2.2}
+                        fill={meta.color}
+                        stroke={isSel ? '#FFD700' : '#fff'}
+                        strokeWidth={isSel ? '0.5' : '0.35'} />
+                      <text x={m.x} y={m.y + 0.7}
+                        textAnchor="middle" fontSize="2.2"
+                        style={{ pointerEvents: 'none', userSelect: 'none' }}>
+                        {meta.icon}
+                      </text>
+                    </>
+                  )}
                 </g>
               );
             })}
 
-            {/* Tooltip (non-edit mode hover) */}
-            {tooltip && !editMode && (() => {
-              const tx = tooltip.x > 70 ? tooltip.x - 22 : tooltip.x + 1;
-              const ty = tooltip.y > 85 ? tooltip.y - 8  : tooltip.y - 5;
+            {/* Tooltip — shown on hover in both modes */}
+            {tooltip && (() => {
+              const tx = tooltip.x > 70 ? tooltip.x - 24 : tooltip.x + 1;
+              const ty = tooltip.y > 85 ? tooltip.y - 9  : tooltip.y - 7;
               return (
-                <g>
-                  <rect x={tx} y={ty} width="22" height="5.5" rx="1.2"
+                <g style={{ pointerEvents: 'none' }}>
+                  <rect x={tx} y={ty} width="24" height="6" rx="1.2"
                     fill="rgba(20,20,20,0.88)" />
-                  <text x={tx + 11} y={ty + 3.5}
+                  <text x={tx + 12} y={ty + 4}
                     textAnchor="middle" fontSize="2.5" fill="#fff"
-                    style={{ pointerEvents: 'none', userSelect: 'none' }}>
+                    style={{ userSelect: 'none' }}>
                     {tooltip.label}
                   </text>
                 </g>

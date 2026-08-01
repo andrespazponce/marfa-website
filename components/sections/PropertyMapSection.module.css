@@ -104,18 +104,17 @@
 /* ── Map container ────────────────────────────────────────────────────────── */
 .mapWrap {
   position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 16px 60px rgba(0, 0, 0, 0.45);
-  border: 1px solid rgba(255,255,255,0.06);
+  /* No border-radius / overflow:hidden — transparent PNG floats freely */
   background: transparent;
-  line-height: 0; /* remove gap under img */
+  line-height: 0;
   user-select: none;
 }
 
 .mapWrapEdit {
   cursor: crosshair;
-  box-shadow: 0 0 0 2px var(--clr-gold), 0 16px 60px rgba(0,0,0,0.45);
+  outline: 2px dashed var(--clr-gold);
+  outline-offset: 4px;
+  border-radius: 4px;
 }
 
 /* ── Map image ────────────────────────────────────────────────────────────── */
