@@ -39,3 +39,7 @@ next-env.d.ts
 # editor
 .Rhistory
 *.swp
+
+# internal docs — living working docs, not versioned
+/PRD.md
+/TRD.md

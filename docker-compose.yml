@@ -1,0 +1,21 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: marfa-website
+    ports:
+      - "3100:3000"
+    environment:
+      # Run with local content — no Directus CMS required.
+      - USE_LOCAL_CONFIG=true
+      # Enable file-watching polling inside the container (Windows bind mounts)
+      - WATCHPACK_POLLING=true
+      - NEXT_PUBLIC_SITE_URL=http://localhost:3100
+    volumes:
+      # Bind-mount source for hot-reload
+      - .:/app
+      # Keep container's node_modules and .next (don't shadow with host)
+      - /app/node_modules
+      - /app/.next
+    restart: unless-stopped

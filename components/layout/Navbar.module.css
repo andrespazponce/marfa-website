@@ -52,6 +52,17 @@
   color: var(--clr-white);
 }
 
+/* ── Wordmark grande — navbar mínimo del paseo virtual 360° ─────────────────── */
+.wordmarkLarge {
+  font-size: 2rem;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.55);
+  transition: opacity 0.2s ease;
+}
+
+.wordmarkLarge:hover {
+  opacity: 0.8;
+}
+
 /* ── Brand (wordmark + theme toggle) ─────────────────────────────────────── */
 .brand {
   display: flex;
@@ -106,7 +117,7 @@
 .links {
   display: flex;
   list-style: none;
-  gap: 2.5rem;
+  gap: 1.5rem;
   margin-left: auto;
 }
 
@@ -119,6 +130,7 @@
   color: rgba(255, 255, 255, 0.7);
   transition: color 0.2s ease;
   position: relative;
+  white-space: nowrap;
 }
 
 .link::after {
