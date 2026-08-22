@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Desactivado: React 18 Strict Mode monta cada efecto dos veces en desarrollo
+  // (mount → cleanup → mount) para detectar efectos no idempotentes. El loader
+  // interno de three.js que usa Photo Sphere Viewer (paseo virtual 360°) dedupea
+  // peticiones por URL a nivel de módulo; cuando el primer montaje se aborta a
+  // mitad de carga, la petición del segundo montaje queda colgada para siempre
+  // (sin resolver ni rechazar) en vez de recargar. Solo ocurre en desarrollo.
+  reactStrictMode: false,
+
   images: {
     // Allow images from Directus CMS when self-hosted
     remotePatterns: [

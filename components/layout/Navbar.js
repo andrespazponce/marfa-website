@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import styles from './Navbar.module.css';
 
 /**
@@ -8,10 +9,15 @@ import styles from './Navbar.module.css';
  * - Transparent on hero, dark on scroll
  * - Hamburger menu for mobile with clip-path reveal animation
  * - WhatsApp CTA in nav
+ *
+ * En /paseo-virtual se reemplaza por una versión mínima (solo el wordmark,
+ * más grande, enlazando a "/") — los enlaces de ancla y el CTA de WhatsApp
+ * no tienen sentido dentro del visor 360 de pantalla completa.
  */
 export default function Navbar({ config }) {
   const { name, whatsapp_number, whatsapp_greeting } = config.site;
   const waHref = `https://wa.me/${whatsapp_number}?text=${encodeURIComponent(whatsapp_greeting)}`;
+  const isMinimal = usePathname() === '/paseo-virtual';
 
   const [scrolled,  setScrolled] = useState(false);
   const [menuOpen,  setMenuOpen]  = useState(false);
@@ -45,13 +51,26 @@ export default function Navbar({ config }) {
   }, [menuOpen]);
 
   const navLinks = [
-    { label: 'La Laguna',   href: '#lagoon'       },
-    { label: 'Actividades', href: '#experiences'  },
-    { label: 'Asadores',    href: '#asadores'     },
-    { label: 'Camping',     href: '#camping'      },
-    { label: 'Galería',     href: '#gallery'      },
-    { label: 'Reservas',    href: '#booking'      },
+    { label: 'La Laguna',        href: '#lagoon'        },
+    { label: 'Actividades',      href: '#experiences'   },
+    { label: 'Asadores',         href: '#asadores'      },
+    { label: 'Camping',          href: '#camping'       },
+    { label: 'Galería',          href: '#gallery'       },
+    { label: 'Paseo 360°',       href: '/paseo-virtual' },
+    { label: 'Reservas',         href: '#booking'       },
   ];
+
+  if (isMinimal) {
+    return (
+      <nav className={styles.nav} role="navigation" aria-label="Navegación">
+        <div className={styles.inner}>
+          <a href="/" className={`${styles.wordmark} ${styles.wordmarkLarge}`} aria-label={`${name} — volver al inicio`}>
+            {name}
+          </a>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav
@@ -66,7 +85,7 @@ export default function Navbar({ config }) {
       <div className={styles.inner}>
         {/* Wordmark + theme toggle */}
         <div className={styles.brand}>
-          <a href="#" className={styles.wordmark} aria-label={`${name} — inicio`}>
+          <a href="/" className={styles.wordmark} aria-label={`${name} — inicio`}>
             {name}
           </a>
           <button
