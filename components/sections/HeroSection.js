@@ -1,24 +1,24 @@
+import AvailabilitySearchBar from '@/components/sections/AvailabilitySearchBar';
+import { IconWaves, IconMapPin, IconLeaf, IconTent, IconSparkles } from '@/components/ui/Icons';
 import styles from './HeroSection.module.css';
 
 /**
  * HeroSection — full-screen video background with animated headline,
- * tag pills, dual CTAs, and a feature strip at the bottom.
+ * tag pills, the availability search bar, and a feature strip at the bottom.
  *
  * Server component — animation handled purely via CSS keyframes + inline delays.
  */
 export default function HeroSection({ data, site }) {
-  const waHref = `https://wa.me/${site.whatsapp_number}?text=${encodeURIComponent(site.whatsapp_greeting)}`;
-
   // Split headline into words for staggered animation
   const words1 = data.headline_line1.split(' ');
   const words2 = data.headline_line2_italic.split(' ');
 
   const featureStrip = [
-    { icon: '🌊', label: 'Laguna natural' },
-    { icon: '📍', label: site.location },
-    { icon: '🌿', label: '19 ha' },
-    { icon: '⛺', label: 'Camping' },
-    { icon: '✨', label: 'Eventos privados' },
+    { Icon: IconWaves,    label: 'Laguna natural' },
+    { Icon: IconMapPin,   label: site.location },
+    { Icon: IconLeaf,     label: '19 ha' },
+    { Icon: IconTent,     label: 'Camping' },
+    { Icon: IconSparkles, label: 'Eventos privados' },
   ];
 
   return (
@@ -78,16 +78,6 @@ export default function HeroSection({ data, site }) {
               </span>
             ))}
           </div>
-
-          {/* CTAs */}
-          <div className={styles.ctas}>
-            <a href={waHref} target="_blank" rel="noopener noreferrer" className={styles.ctaPrimary}>
-              {data.cta_primary_label}
-            </a>
-            <a href="#experiences" className={styles.ctaSecondary}>
-              {data.cta_secondary_label}
-            </a>
-          </div>
         </div>
       </div>
 
@@ -95,10 +85,17 @@ export default function HeroSection({ data, site }) {
       <div className={styles.strip} aria-hidden="true">
         {featureStrip.map((item, i) => (
           <div key={i} className={styles.stripItem}>
-            <span className={styles.stripIcon}>{item.icon}</span>
+            <item.Icon className={styles.stripIcon} />
             <span className={styles.stripLabel}>{item.label}</span>
           </div>
         ))}
+      </div>
+
+      {/* Availability search bar — franja de ancho completo, debajo del strip */}
+      <div className={styles.searchBand}>
+        <div className={styles.searchBandInner}>
+          <AvailabilitySearchBar site={site} />
+        </div>
       </div>
 
       {/* Scroll cue */}

@@ -1,7 +1,10 @@
 .hero {
   position: relative;
-  height: 100svh;
-  min-height: 600px;
+  /* auto en vez de 100svh fijo: con el strip + la franja de búsqueda debajo,
+     el contenido puede superar el viewport — el alto fijo + overflow:hidden
+     recortaba el encabezado por arriba en vez de dejarlo crecer. */
+  height: auto;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -128,56 +131,6 @@
   border-radius: 100px;
 }
 
-/* ── CTAs ─────────────────────────────────────────────────────────────────── */
-.ctas {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  opacity: 0;
-  animation: fadeUp 0.8s var(--ease-out) 2.5s forwards;
-}
-
-.ctaPrimary {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--font-sans);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--clr-bg);
-  background: var(--clr-gold);
-  padding: 1rem 2.25rem;
-  border-radius: 2px;
-  transition: background-color 0.2s ease, transform 0.2s ease;
-}
-
-.ctaPrimary:hover {
-  background: #d4b47a;
-  transform: translateY(-2px);
-}
-
-.ctaSecondary {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--font-sans);
-  font-size: 0.8125rem;
-  font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255,255,255,0.75);
-  border: 1px solid rgba(255,255,255,0.25);
-  padding: 1rem 2.25rem;
-  border-radius: 2px;
-  transition: color 0.2s ease, border-color 0.2s ease;
-}
-
-.ctaSecondary:hover {
-  color: #fff;
-  border-color: rgba(255,255,255,0.6);
-}
-
 /* ── Feature Strip ────────────────────────────────────────────────────────── */
 .strip {
   position: relative;
@@ -209,6 +162,8 @@
 .stripIcon {
   font-size: 1rem;
   line-height: 1;
+  color: rgba(255, 255, 255, 0.7);
+  flex-shrink: 0;
 }
 
 .stripLabel {
@@ -218,6 +173,30 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.55);
+}
+
+/* ── Availability search band — ancho completo, debajo del strip ────────── */
+.searchBand {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 1.5rem 2rem;
+  opacity: 0;
+  animation: fadeUp 0.8s var(--ease-out) 2.5s forwards;
+}
+
+.searchBandInner {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .searchBand {
+    padding: 1.25rem 1.25rem 1.5rem;
+  }
 }
 
 /* ── Scroll cue ───────────────────────────────────────────────────────────── */
@@ -254,11 +233,16 @@
 /* ── Responsive ───────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .content {
-    padding-bottom: 6rem;
+    padding-bottom: 2.5rem;
   }
 
   .headline {
     font-size: clamp(2.75rem, 12vw, 5rem);
+    margin-bottom: 1.5rem;
+  }
+
+  .tags {
+    margin-bottom: 1.5rem;
   }
 
   .stripItem {

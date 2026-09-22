@@ -1,0 +1,372 @@
+/* ── Wrap ─────────────────────────────────────────────────────────────────── */
+/* Vive dentro de la franja de ancho completo del Hero (.searchBand), siempre
+   sobre el video — por eso usa una paleta fija (blanco translúcido + verde +
+   dorado) en vez de los tokens de tema claro/oscuro: igual que el eyebrow,
+   los tags y el resto de elementos del Hero, no debe cambiar con el toggle
+   de tema, solo el contenido normal de la página lo hace. */
+.wrap {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+}
+
+.card {
+  padding: 0;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────────── */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 100px;
+  padding: 0.625rem 1.125rem;
+  transition: background-color var(--dur-fast) var(--ease-out),
+              color var(--dur-fast) var(--ease-out),
+              border-color var(--dur-fast) var(--ease-out);
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.tabActive {
+  background: var(--clr-accent);
+  border-color: var(--clr-accent);
+  color: #fff;
+}
+
+.tabIcon {
+  font-size: 0.9375rem;
+  line-height: 1;
+}
+
+/* ── Fields row ───────────────────────────────────────────────────────────── */
+.fields {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.fieldIcon {
+  font-size: 1rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Adultos / Niños */
+.guestsField {
+  position: relative;
+  flex: 1 1 220px;
+}
+
+.fieldBtn {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1rem;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+
+.fieldBtn:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.fieldText {
+  flex: 1;
+  text-align: left;
+}
+
+.chevron {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75rem;
+}
+
+/* fixed (no absolute) — top/left se calculan en JS a partir del botón, para
+   escapar del overflow:hidden del Hero (ver AvailabilitySearchBar.js) */
+.guestsPanel {
+  position: fixed;
+  z-index: 1000;
+  width: 280px;
+  background: #14160f;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  padding: 1.125rem;
+}
+
+.stepperRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0;
+}
+
+.stepperRow + .stepperRow {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stepperLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  font-family: var(--font-sans);
+}
+
+.stepperLabel span {
+  font-size: 0.875rem;
+  color: #e8e4dc;
+}
+
+.stepperLabel small {
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.stepper button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e8e4dc;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.stepper button:hover {
+  border-color: var(--clr-accent);
+  color: var(--clr-accent);
+}
+
+.stepper span {
+  min-width: 1.25rem;
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: #e8e4dc;
+}
+
+.guestsDone {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.625rem;
+  border-radius: var(--radius-sm);
+  background: var(--clr-accent);
+  color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Fecha */
+.dateField {
+  position: relative;
+  flex: 1 1 200px;
+}
+
+/* fixed (no absolute) — top/left se calculan en JS a partir del botón, para
+   escapar del overflow:hidden del Hero (ver AvailabilitySearchBar.js) */
+.datePanel {
+  position: fixed;
+  z-index: 1000;
+  width: 300px;
+  background: #14160f;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-md);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  padding: 1.125rem;
+}
+
+.calHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.875rem;
+}
+
+.calHeader button {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e8e4dc;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.calHeader button:hover {
+  border-color: var(--clr-accent);
+  color: var(--clr-accent);
+}
+
+.calMonthLabel {
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #e8e4dc;
+}
+
+.calWeekdays,
+.calGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.calWeekdays {
+  margin-bottom: 0.375rem;
+}
+
+.calWeekdays span {
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.calGrid {
+  gap: 0.125rem;
+}
+
+.calDayEmpty {
+  aspect-ratio: 1;
+}
+
+.calDay {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  color: #e8e4dc;
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.calDay:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.calDay:disabled {
+  color: rgba(255, 255, 255, 0.2);
+  cursor: not-allowed;
+}
+
+.calDayToday {
+  border: 1px solid var(--clr-accent);
+}
+
+.calDaySelected {
+  background: var(--clr-accent);
+  color: #fff;
+}
+
+.calDaySelected:hover:not(:disabled) {
+  background: var(--clr-accent);
+}
+
+/* Buscar */
+.searchBtn {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--clr-gold);
+  color: #14160f;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: var(--radius-md);
+  padding: 0.875rem 1.75rem;
+  transition: background-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+}
+
+.searchBtn:hover {
+  background: #d4b47a;
+  transform: translateY(-1px);
+}
+
+.searchIcon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────────────────────────── */
+@media (max-width: 860px) {
+  .tabs {
+    gap: 0.5rem;
+  }
+
+  .tab {
+    flex: 1 1 calc(50% - 0.5rem);
+    justify-content: center;
+  }
+
+  .fields {
+    flex-direction: column;
+  }
+
+  /* flex-basis (220px/200px) targets width in a row layout — reset it here,
+     otherwise column direction reads it as a fixed height instead. */
+  .guestsField,
+  .dateField {
+    flex: 1 1 auto;
+  }
+
+  .searchBtn {
+    width: 100%;
+    padding: 0.9375rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .tab {
+    flex: 1 1 100%;
+  }
+}
