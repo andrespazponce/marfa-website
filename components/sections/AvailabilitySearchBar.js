@@ -16,9 +16,12 @@ import styles from './AvailabilitySearchBar.module.css';
  * Hospedaje" ya incluye entrada + asador. "Evento Privado" es aparte
  * (reserva la propiedad completa) y solo pide personas + fecha.
  *
- * Por ahora es solo la interfaz: "Buscar" arma la consulta y la envía por
- * WhatsApp, igual que el resto del sitio hoy — todavía no hay motor de
- * disponibilidad real conectado (ver PRD §5.2).
+ * Día/Asador/Camping-Hospedaje llaman a la API de reservas de Odoo
+ * (rental_management, vía /api/disponibilidad y /api/reservas — ver
+ * lib/odoo.js). "Buscar" solo cotiza (no crea nada en Odoo); "Confirmar
+ * reserva" recién ahí crea la cotización real. Evento Privado todavía no
+ * está modelado en Odoo (bloquea todo el predio) — sigue yendo directo a
+ * WhatsApp, como el resto del sitio.
  */
 const PACKAGES = [
   { key: 'dia',     Icon: IconSunrise,  label: 'Por el día' },
@@ -30,7 +33,7 @@ const PACKAGES = [
 const GUESTS_PANEL_WIDTH  = 280;
 const GUESTS_PANEL_HEIGHT = 230;
 const DATE_PANEL_WIDTH  = 300;
-const DATE_PANEL_HEIGHT = 340; // generoso: un mes de 6 filas es más alto que uno de 5
+const DATE_PANEL_HEIGHT = 364; // generoso: un mes de 6 filas + el hint de rango es más alto que uno de 5
 const WEEKDAY_LABELS = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
 const MONTH_NAMES = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -56,6 +59,12 @@ function isSameDay(a, b) {
     && a.getFullYear() === b.getFullYear()
     && a.getMonth() === b.getMonth()
     && a.getDate() === b.getDate();
+}
+
+// Quita el prefijo "[CODIGO_INTERNO]" que arma Odoo delante del nombre del
+// producto — es un detalle interno (default_code), no algo para el cliente.
+function displayProductName(name) {
+  return name.replace(/^\[.*?\]\s*/, '');
 }
 
 // Grilla del mes: null para los huecos antes del día 1 (semana empieza lunes).
@@ -88,7 +97,8 @@ export default function AvailabilitySearchBar({ site }) {
   const [adults, setAdults]     = useState(1);
   const [children, setChildren] = useState(0);
 
-  const [selectedDate, setSelectedDate] = useState(null); // Date | null
+  const [selectedDate, setSelectedDate]       = useState(null); // Date | null — check-in (o fecha única)
+  const [selectedEndDate, setSelectedEndDate] = useState(null); // Date | null — check-out, solo camping
   const [viewDate, setViewDate]         = useState(() => new Date());
   const [dateOpen, setDateOpen]         = useState(false);
   const [datePanelPos, setDatePanelPos] = useState({ top: 0, left: 0 });
@@ -101,6 +111,20 @@ export default function AvailabilitySearchBar({ site }) {
   const guestsRef      = useRef(null);
   const guestsBtnRef   = useRef(null);
   const guestsPanelRef = useRef(null);
+
+  // Resultado de la última cotización — se invalida apenas cambia algo de
+  // lo que se buscó, para no dejar un total viejo confirmable.
+  const [searching, setSearching]           = useState(false);
+  const [quote, setQuote]                   = useState(null);
+  const [quoteError, setQuoteError]         = useState(null);
+  const [confirming, setConfirming]         = useState(false);
+  const [confirmedOrder, setConfirmedOrder] = useState(null);
+
+  useEffect(() => {
+    setQuote(null);
+    setQuoteError(null);
+    setConfirmedOrder(null);
+  }, [activePackage, adults, children, selectedDate, selectedEndDate]);
 
   // Cerrar al hacer click afuera — cada popover chequea su propio trigger +
   // su propio panel (el panel vive en un portal, ver nota más abajo).
@@ -157,9 +181,24 @@ export default function AvailabilitySearchBar({ site }) {
     setDateOpen((v) => !v);
   };
 
+  const isCamping = activePackage === 'camping';
+
   const pickDay = (day) => {
-    setSelectedDate(day);
-    setDateOpen(false);
+    if (!isCamping) {
+      setSelectedDate(day);
+      setDateOpen(false);
+      return;
+    }
+    // Rango check-in/check-out: primer click marca la llegada; el segundo,
+    // si es posterior, marca la salida y cierra. Un click antes/igual a la
+    // llegada actual reinicia el rango en vez de dar una estadía de 0 noches.
+    if (!selectedDate || selectedEndDate || day <= selectedDate) {
+      setSelectedDate(day);
+      setSelectedEndDate(null);
+    } else {
+      setSelectedEndDate(day);
+      setDateOpen(false);
+    }
   };
 
   const shiftMonth = (delta) => {
@@ -171,26 +210,120 @@ export default function AvailabilitySearchBar({ site }) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const handleSearch = () => {
-    const pkg = PACKAGES.find((p) => p.key === activePackage);
-    const message = [
-      'Hola, quisiera consultar disponibilidad en MARFA.',
-      `Paquete: ${pkg.label}`,
-      `Adultos: ${adults}`,
-      children > 0 ? `Niños: ${children}` : '',
-      selectedDate ? `Fecha: ${toISODate(selectedDate)}` : '',
-    ].filter(Boolean).join('\n');
+  const canSearch = isCamping ? !!(selectedDate && selectedEndDate) : !!selectedDate;
 
+  const buildPayload = () => ({
+    paquete: activePackage,
+    fecha_inicio: toISODate(selectedDate),
+    ...(isCamping ? { fecha_fin: toISODate(selectedEndDate) } : {}),
+    adultos: adults,
+    ninos: children,
+  });
+
+  const openWhatsapp = (message) => {
     window.open(
       `https://wa.me/${site.whatsapp_number}?text=${encodeURIComponent(message)}`,
       '_blank'
     );
   };
 
+  const handleSearch = async () => {
+    if (activePackage === 'evento') {
+      // Evento Privado reserva la propiedad completa — todavía no modelado
+      // en Odoo (ver PRD de rental_management, Roadmap). Sigue yendo directo
+      // a WhatsApp, como el resto del sitio hoy.
+      openWhatsapp([
+        'Hola, quisiera consultar disponibilidad en MARFA.',
+        'Paquete: Evento Privado',
+        `Adultos: ${adults}`,
+        children > 0 ? `Niños: ${children}` : '',
+        selectedDate ? `Fecha: ${toISODate(selectedDate)}` : '',
+      ].filter(Boolean).join('\n'));
+      return;
+    }
+
+    if (!canSearch) {
+      setQuoteError(
+        isCamping
+          ? 'Elegí la fecha de ingreso y de salida antes de buscar.'
+          : 'Elegí la fecha de visita antes de buscar.'
+      );
+      return;
+    }
+
+    setSearching(true);
+    setQuoteError(null);
+    setQuote(null);
+    setConfirmedOrder(null);
+
+    try {
+      const res = await fetch('/api/disponibilidad', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildPayload()),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        setQuoteError(data.error || 'No se pudo consultar disponibilidad.');
+      } else {
+        setQuote(data);
+      }
+    } catch {
+      setQuoteError('No se pudo conectar con el sistema de reservas.');
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleConfirm = async () => {
+    setConfirming(true);
+    setQuoteError(null);
+    try {
+      const res = await fetch('/api/reservas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...buildPayload(), orden_id: confirmedOrder?.id }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) {
+        setQuoteError(data.error || 'No se pudo confirmar la reserva.');
+      } else {
+        setConfirmedOrder({ id: data.orden_id, name: data.orden_nombre });
+      }
+    } catch {
+      setQuoteError('No se pudo conectar con el sistema de reservas.');
+    } finally {
+      setConfirming(false);
+    }
+  };
+
+  const handleContinueWhatsapp = () => {
+    const pkg = PACKAGES.find((p) => p.key === activePackage);
+    openWhatsapp([
+      'Hola, quisiera confirmar mi reserva en MARFA.',
+      confirmedOrder?.name ? `N° de cotización: ${confirmedOrder.name}` : '',
+      `Paquete: ${pkg.label}`,
+      `Adultos: ${adults}`,
+      children > 0 ? `Niños: ${children}` : '',
+      `Fecha: ${toISODate(selectedDate)}${isCamping ? ` al ${toISODate(selectedEndDate)}` : ''}`,
+      quote?.total != null ? `Total: ${quote.moneda} ${quote.total.toFixed(2)}` : '',
+    ].filter(Boolean).join('\n'));
+  };
+
+  const handleConsultWhatsapp = () => {
+    openWhatsapp('Hola, quisiera consultar otras fechas para MARFA.');
+  };
+
   const guestsSummary =
     `${adults} ${adults === 1 ? 'Adulto' : 'Adultos'} · ${children} ${children === 1 ? 'Niño' : 'Niños'}`;
 
-  const dateSummary = selectedDate ? DATE_BTN_FORMATTER.format(selectedDate) : 'Fecha de visita';
+  const dateSummary = isCamping
+    ? (selectedDate && selectedEndDate)
+      ? `${DATE_BTN_FORMATTER.format(selectedDate)} - ${DATE_BTN_FORMATTER.format(selectedEndDate)}`
+      : selectedDate
+        ? `${DATE_BTN_FORMATTER.format(selectedDate)} → salida`
+        : 'Fechas de estadía'
+    : selectedDate ? DATE_BTN_FORMATTER.format(selectedDate) : 'Fecha de visita';
 
   const monthGrid = buildMonthGrid(viewDate);
 
@@ -205,7 +338,11 @@ export default function AvailabilitySearchBar({ site }) {
               role="tab"
               aria-selected={activePackage === pkg.key}
               className={`${styles.tab} ${activePackage === pkg.key ? styles.tabActive : ''}`}
-              onClick={() => setActivePackage(pkg.key)}
+              onClick={() => {
+                setActivePackage(pkg.key);
+                setSelectedDate(null);
+                setSelectedEndDate(null);
+              }}
             >
               <pkg.Icon className={styles.tabIcon} />
               <span>{pkg.label}</span>
@@ -305,7 +442,7 @@ export default function AvailabilitySearchBar({ site }) {
                 ref={datePanelRef}
                 className={styles.datePanel}
                 role="group"
-                aria-label="Fecha de visita"
+                aria-label={isCamping ? 'Fechas de ingreso y salida' : 'Fecha de visita'}
                 style={{ top: datePanelPos.top, left: datePanelPos.left }}
               >
                 <div className={styles.calHeader}>
@@ -318,6 +455,14 @@ export default function AvailabilitySearchBar({ site }) {
                   </button>
                 </div>
 
+                {isCamping && (
+                  <p className={styles.calHint}>
+                    {selectedDate && !selectedEndDate
+                      ? 'Elegí la fecha de salida'
+                      : 'Elegí ingreso y salida'}
+                  </p>
+                )}
+
                 <div className={styles.calWeekdays}>
                   {WEEKDAY_LABELS.map((w) => (
                     <span key={w}>{w}</span>
@@ -328,8 +473,11 @@ export default function AvailabilitySearchBar({ site }) {
                   {monthGrid.map((day, i) => {
                     if (!day) return <span key={i} className={styles.calDayEmpty} />;
                     const isPast = day < today;
-                    const isSelected = isSameDay(day, selectedDate);
+                    const isRangeEnd = isCamping && isSameDay(day, selectedEndDate);
+                    const isSelected = isSameDay(day, selectedDate) || isRangeEnd;
                     const isToday = isSameDay(day, today);
+                    const isInRange = isCamping && selectedDate && selectedEndDate
+                      && day > selectedDate && day < selectedEndDate;
                     return (
                       <button
                         key={i}
@@ -339,6 +487,7 @@ export default function AvailabilitySearchBar({ site }) {
                         className={[
                           styles.calDay,
                           isSelected ? styles.calDaySelected : '',
+                          isInRange ? styles.calDayInRange : '',
                           isToday && !isSelected ? styles.calDayToday : '',
                         ].join(' ')}
                       >
@@ -353,10 +502,61 @@ export default function AvailabilitySearchBar({ site }) {
           </div>
 
           {/* Buscar */}
-          <button type="button" className={styles.searchBtn} onClick={handleSearch}>
-            <IconSearch className={styles.searchIcon} /> Buscar
+          <button type="button" className={styles.searchBtn} onClick={handleSearch} disabled={searching}>
+            <IconSearch className={styles.searchIcon} /> {searching ? 'Buscando…' : 'Buscar'}
           </button>
         </div>
+
+        {quoteError && (
+          <div className={styles.quoteError} role="alert">{quoteError}</div>
+        )}
+
+        {quote && (
+          <div className={styles.quoteResult}>
+            <div className={styles.quoteLines}>
+              {quote.lineas.map((linea, i) => (
+                <div key={i} className={styles.quoteLine}>
+                  <span>{linea.cantidad}× {displayProductName(linea.producto)}</span>
+                  <span>{quote.moneda} {linea.subtotal.toFixed(2)}</span>
+                </div>
+              ))}
+            </div>
+            <div className={styles.quoteTotal}>
+              <span>Total</span>
+              <span>{quote.moneda} {quote.total.toFixed(2)}</span>
+            </div>
+
+            {quote.disponible ? (
+              confirmedOrder ? (
+                <div className={styles.quoteConfirmed}>
+                  <p>Reserva registrada: <strong>{confirmedOrder.name}</strong></p>
+                  <button type="button" className={styles.waContinueBtn} onClick={handleContinueWhatsapp}>
+                    Continuar por WhatsApp
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.confirmBtn}
+                  onClick={handleConfirm}
+                  disabled={confirming}
+                >
+                  {confirming ? 'Confirmando…' : 'Confirmar reserva'}
+                </button>
+              )
+            ) : (
+              <div className={styles.quoteUnavailable}>
+                <p>No disponible para esas fechas:</p>
+                <ul>
+                  {quote.mensajes.map((m, i) => <li key={i}>{m}</li>)}
+                </ul>
+                <button type="button" className={styles.waContinueBtn} onClick={handleConsultWhatsapp}>
+                  Consultar por WhatsApp
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
